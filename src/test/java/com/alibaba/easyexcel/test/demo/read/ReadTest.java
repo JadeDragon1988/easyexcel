@@ -322,4 +322,22 @@ public class ReadTest {
         // 这里 只要，然后读取第一个sheet 同步读取会自动finish
         EasyExcel.read(fileName, new NoModelDataListener()).sheet().doRead();
     }
+
+    /**
+     * 读取excel内容行数
+     */
+    @Test
+    public void rowNumReadTest() {
+        long start = System.currentTimeMillis();
+        String fileName = TestFileUtil.getPath() + "demo" + File.separator + "sales_tracking_more_than_2w.xlsx";
+
+        ExcelReader reader = EasyExcel.read(fileName).build();
+        ReadSheet sheet = EasyExcel.readSheet(0).build();
+        reader.read(sheet);
+        int row = reader.analysisContext().readRowHolder().getRowIndex();
+        long end = System.currentTimeMillis();
+        long spent = end - start;
+        log.info(" excel total row number:" + row);
+        log.info(" read excel spent " + spent);
+    }
 }
