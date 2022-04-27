@@ -2,7 +2,10 @@ package com.alibaba.easyexcel.test.demo.write;
 
 import java.io.File;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.URL;
+import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -18,6 +21,7 @@ import com.alibaba.excel.annotation.format.NumberFormat;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.annotation.write.style.ContentRowHeight;
 import com.alibaba.excel.annotation.write.style.HeadRowHeight;
+import com.alibaba.excel.converters.localdatetime.LocalDateConverter;
 import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.metadata.data.CommentData;
 import com.alibaba.excel.metadata.data.FormulaData;
@@ -28,6 +32,7 @@ import com.alibaba.excel.metadata.data.ImageData.ImageType;
 import com.alibaba.excel.metadata.data.RichTextStringData;
 import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.util.BooleanUtils;
+import com.alibaba.excel.util.DateUtils;
 import com.alibaba.excel.util.FileUtils;
 import com.alibaba.excel.util.ListUtils;
 import com.alibaba.excel.write.handler.CellWriteHandler;
@@ -791,4 +796,47 @@ public class WriteTest {
         return list;
     }
 
+    private List<SupplierInvoiceStatusReportVO> getRecords(){
+        List<SupplierInvoiceStatusReportVO> list = ListUtils.newArrayList();
+
+        SupplierInvoiceStatusReportVO vo1 = new SupplierInvoiceStatusReportVO();
+        vo1.setCompany("DESIPRO PTE. LTD");
+        vo1.setProcessByOrder("Hardware United");
+        vo1.setDpp("Shenzhen");
+        vo1.setOrderNumber(new BigDecimal("4517183596"));
+        vo1.setAmount(new BigDecimal("5041.47"));
+        vo1.setDueDate(LocalDate.parse("2022-06-06"));
+        list.add(vo1);
+
+        SupplierInvoiceStatusReportVO vo2 = new SupplierInvoiceStatusReportVO();
+        vo2.setCompany("DESIPRO PTE. LTD");
+        vo2.setProcessByOrder("Yarn To FG");
+        vo2.setDpp("Nanjing XW");
+        vo2.setOrderNumber(new BigDecimal("4516897895"));
+        vo2.setAmount(new BigDecimal("9900.10"));
+        vo2.setDueDate(LocalDate.parse("2022-05-22"));
+        list.add(vo2);
+        return list;
+    }
+
+    @Test
+    public void export_by_template() {
+        String templateFileName = TestFileUtil.getPath() + "demo.fill" + File.separator + "SUPPLIER_INVOICE_STATUS.xlsx";
+        String fileName = TestFileUtil.getPath() + "export_by_template" + System.currentTimeMillis() + ".xlsx";
+
+//        ExcelWriter excelWriter = EasyExcel.write(fileName).withTemplate(templateFileName).build();
+//        WriteSheet writeSheet = EasyExcel.writerSheet()
+//            .head(SupplierInvoiceStatusReportVO.class)
+//            .registerConverter(new LocalDateConverter())
+////            .registerWriteHandler(new CustomizedCellWriteHandler())
+//            .build();
+//        FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+//        excelWriter.fill(getRecords(), fillConfig, writeSheet);
+
+        // 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
+        EasyExcel.write(fileName, SupplierInvoiceStatusReportVO.class)
+            .withTemplate(templateFileName).sheet()
+            .registerConverter(new LocalDateConverter())
+            .doFill(getRecords());
+    }
 }
